@@ -1,0 +1,70 @@
+#!/usr/bin/node
+/*
+ * Simple script to return the Chromecast playing status
+ * Output: playing, paused and some other values I guess
+ * We can also use it for short commands like pause and play
+*/
+
+var host = process.argv[2] || null,
+  command = process.argv[3] || null;
+
+if (!host || !command || (command !== "status" && command !== "pause" && command !== "play")) {
+  // Show help
+  console.log("Usage:");
+  console.log("./mini-chromecast host command");
+  console.log("   status: shows player status");
+  console.log("   pause: pauses running application");
+  console.log("   play: continues playing in running application");
+  process.exit();
+}
+
+var PS = require('castv2-client/lib/senders/platform');
+var client = new PS();
+
+client.connect(host, function() {
+
+  client.getSessions(function(err, apps) {
+    if (err) { output("unknown"); }
+    if (! apps.length) { output("stopped"); }
+
+    var session = apps[0];
+    var myApp = require("./classes/api");
+
+    client.join(session, myApp, function(err, player) {
+
+      if (command === "status") {
+        player.getStatus(function (err, status) {
+          output(status.playerState.toLowerCase());
+        });
+      }
+
+      if (command === "pause") {
+        player.pause(function() {
+          process.exit();
+        });
+      }
+
+      if (command === "play") {
+        player.play(function() {
+          process.exit();
+        });
+      }
+
+      /*
+      For when it keeps running
+      player.on('status', function(status) {
+        output(status.playerState.toLowerCase());
+      });
+      */
+    });
+  });
+
+});
+
+
+function output(status) {
+  if (command === "status") {
+    console.log(status);
+  }
+  process.exit();
+}

@@ -1,0 +1,10 @@
+{
+  "name": "mini-chromecast",
+  "version": "1.0.0",
+  "description": "Command line tool to get chromecast receiver status and do pause/play",
+  "main": "chromecast",
+  "author": "Boudewijn van Breukelen",
+  "dependencies": {
+    "castv2-client": "^1.2.0"
+  }
+}
